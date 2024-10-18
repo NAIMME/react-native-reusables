@@ -1,0 +1,89 @@
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { Video } from 'expo-av';
+import { Camera } from 'expo-camera';
+import { GLView } from 'expo-gl';
+import { Ionicons } from '@expo/vector-icons';
+
+// Assume we have these components from react-native-reusables
+import { Container, Button, ProductCard } from 'react-native-reusables';
+
+// Mock data for products
+const products = [
+  { id: '1', name: 'T-Shirt', price: 19.99, model3dUrl: 'https://example.com/tshirt-3d-model.glb' },
+  { id: '2', name: 'Jeans', price: 49.99, model3dUrl: 'https://example.com/jeans-3d-model.glb' },
+  // Add more products...
+];
+
+export default function App() {
+  const [currentProduct, setCurrentProduct] = useState(products[0]);
+  const [isARMode, setIsARMode] = useState(false);
+
+  const toggleARMode = () => {
+    setIsARMode(!isARMode);
+  };
+
+  const renderProduct = ({ item }) => (
+    <ProductCard
+      name={item.name}
+      price={item.price}
+      onPress={() => setCurrentProduct(item)}
+    />
+  );
+
+  const renderARView = () => {
+    // This is a placeholder for AR functionality
+    // You'll need to implement this using a library like ViroReact or react-native-ar
+    return (
+      <GLView
+        style={{ flex: 1 }}
+        onContextCreate={(gl) => {
+          // Initialize your AR scene here
+          console.log('AR context created');
+        }}
+      />
+    );
+  };
+
+  return (
+    <Container>
+      <View style={{ flex: 1 }}>
+        {isARMode ? (
+          renderARView()
+        ) : (
+          <Video
+            source={{ uri: 'https://example.com/live-stream.mp4' }}
+            rate={1.0}
+            volume={1.0}
+            isMuted={false}
+            resizeMode="cover"
+            shouldPlay
+            isLooping
+            style={{ flex: 1 }}
+          />
+        )}
+        <View style={{ position: 'absolute', top: 20, right: 20 }}>
+          <TouchableOpacity onPress={toggleARMode}>
+            <Ionicons name={isARMode ? 'videocam' : 'camera'} size={30} color="white" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={{ height: 150 }}>
+        <FlatList
+          data={products}
+          renderItem={renderProduct}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        />
+      </View>
+      <Button
+        title={`Try On ${currentProduct.name}`}
+        onPress={() => {
+          // Implement try-on logic here
+          console.log(`Trying on ${currentProduct.name}`);
+        }}
+      />
+    </Container>
+  );
+}
